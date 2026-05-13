@@ -10,4 +10,5 @@ engine = create_engine(DATABASE_URL, echo=True)
 # Настройка фабрики сеансов
 SessionLocal = sessionmaker(bind=engine)
 
-Base = DeclarativeBase
+class Base(DeclarativeBase):
+    pass
