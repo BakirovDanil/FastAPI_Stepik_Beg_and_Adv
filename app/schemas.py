@@ -14,6 +14,10 @@ class CategoryCreate(BaseModel):
 
 
 class Category(CategoryCreate):
+    """
+    Модель для ответа с данными категории.
+    Используется в GET-запросах.
+    """
     id: int = Field(...,
                     description="Уникальный идентификатор категории")
     is_active: bool = Field(...,
