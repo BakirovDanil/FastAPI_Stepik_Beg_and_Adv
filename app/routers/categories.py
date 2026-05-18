@@ -24,14 +24,20 @@ async def read_categories(db: Session = Depends(get_db)):
     return categories
 
 
-@router.get("/{category_id}")
-async def read_category(category_id: int):
+@router.get("/{category_id}", response_model=CategorySchema, status_code=status.HTTP_200_OK)
+async def read_category(category_id: int, db: Session = Depends(get_db)):
     """
     Возвращает категорию по id
     :param category_id:
     :return:
     """
-    pass
+    # Проверка существования категории
+    stmt = select(CategoryModel).where(CategoryModel.id == category_id).where(CategoryModel.is_active == True)
+    category = db.scalars(stmt).first()
+    if category is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+
+    return category
 
 
 @router.post("/", response_model=CategorySchema, status_code=status.HTTP_201_CREATED)
