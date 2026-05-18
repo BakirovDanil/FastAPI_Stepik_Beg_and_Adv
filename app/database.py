@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 # Строка подключения для SQLite
-DATABASE_URL = "sqlite:///ecommerce.db"
+DATABASE_URL = "sqlite:///../ecommerce.db"
 
 # Создание Engine
 engine = create_engine(DATABASE_URL, echo=True)
