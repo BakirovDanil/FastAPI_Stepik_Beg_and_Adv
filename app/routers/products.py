@@ -87,7 +87,7 @@ async def create_product(product: ProductCreate,
     stmt = select(CategoryModel).where(CategoryModel.id == product.category_id).where(CategoryModel.is_active == True)
     category = db.scalars(stmt).first()
     if category is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category not found or inactive")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found or inactive")
 
     # Создание нового продукта
     product = ProductModel(**product.model_dump())
