@@ -70,8 +70,6 @@ async def read_products_by_category(category_id: int,
     stmt = select(ProductModel).where(ProductModel.category_id == category_id).where(ProductModel.is_active == True)
     products = db.scalars(stmt).all()
 
-    if products is None:
-        return []
     return products
 
 
