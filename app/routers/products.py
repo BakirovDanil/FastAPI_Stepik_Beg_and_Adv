@@ -22,11 +22,12 @@ async def read_products(db: Session = Depends(get_db)):
     :param db:
     :return:
     """
-    stmt = select(ProductModel).where(ProductModel.is_active == True)
+    stmt = (select(ProductModel)
+            .join(CategoryModel)
+            .where(ProductModel.is_active == True)
+            .where(CategoryModel.is_active == True)
+            )
     products = db.scalars(stmt).all()
-
-    if products is None:
-        return []
     return products
 
 
