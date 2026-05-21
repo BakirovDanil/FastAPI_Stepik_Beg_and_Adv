@@ -1,3 +1,5 @@
+# ------ Синхронная сессия ------
+
 from sqlalchemy.orm import Session
 from collections.abc import Generator
 
@@ -14,3 +16,17 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+# ------ Асинхронная сессия ------
+
+from collections.abc import AsyncGenerator
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import async_session_maker
+
+async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Асинхронная сессия SQLAlchemy для работы с БД PostgreSQL.
+    :return:
+    """
+    async with async_session_maker() as session:
+        yield session
