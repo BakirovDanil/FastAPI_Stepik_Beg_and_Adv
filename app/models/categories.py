@@ -14,13 +14,15 @@ class Category(Base):
     products: Mapped[list["Product"]] = relationship(
         "Product",
         back_populates="category",
-        uselist=True
+        uselist=True,
+        cascade="all, delete"
     )
 
     parent: Mapped["Category | None"] = relationship(
         "Category",
         back_populates="children",
-        remote_side="Category.id"
+        remote_side="Category.id",
+        cascade="all, delete"
     )
 
     children: Mapped[list["Category"]] = relationship(
