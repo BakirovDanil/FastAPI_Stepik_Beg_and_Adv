@@ -17,11 +17,18 @@ class Product(Base):
     stock: Mapped[int] = mapped_column(Integer, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    # внешний ключ
+    # внешний ключ для связи с категориями
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey("categories.id"), nullable=False)
+    # внешний ключ для связи с пользователями
+    seller_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
 
     # атрибут связи, указывающий на другую модель
     category: Mapped["Category"] = relationship(
         "Category",
+        back_populates="products"
+    )
+
+    seller: Mapped["User"] = relationship(
+        "User",
         back_populates="products"
     )
