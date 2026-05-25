@@ -1,6 +1,6 @@
 # Импортируем необходимые библиотеки
 from fastapi import FastAPI
-from app.routers import categories, products
+from app.routers import categories, products, users
 import uvicorn
 
 # Создаем приложение FastAPI
@@ -12,6 +12,7 @@ app = FastAPI(
 # подключение маршрутов категорий и товаров
 app.include_router(categories.router)
 app.include_router(products.router)
+app.include_router(users.router)
 
 
 if __name__ == "__main__":
