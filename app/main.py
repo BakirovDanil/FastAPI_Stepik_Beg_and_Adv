@@ -15,5 +15,15 @@ app.include_router(products.router)
 app.include_router(users.router)
 
 
+# корневой эндпоинт для проверки
+@app.get("/")
+async def root():
+    """
+    Корневой маршрут, подтверждающий, что API работает.
+    :return:
+    """
+    return {"message": "Добро пожаловать в API интернет-магазина"}
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8092, reload=True)
