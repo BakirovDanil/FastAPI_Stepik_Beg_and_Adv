@@ -6,6 +6,9 @@ from app.db_depends import get_async_db
 
 from app.models.categories import Category as CategoryModel
 from app.schemas import Category as CategorySchema, CategoryCreate
+from app.models.users import User as UserModel
+
+from app.auth import get_current_admin
 
 # создание роутера маршрута для категорий
 router = APIRouter(
@@ -13,7 +16,9 @@ router = APIRouter(
     tags=["categories"]
 )
 
-@router.get("/", response_model=list[CategorySchema], status_code=status.HTTP_200_OK)
+@router.get("/",
+            response_model=list[CategorySchema],
+            status_code=status.HTTP_200_OK)
 async def read_categories(db: AsyncSession = Depends(get_async_db)):
     """
     Возвращает список всех активных категорий.
@@ -26,8 +31,11 @@ async def read_categories(db: AsyncSession = Depends(get_async_db)):
     return categories
 
 
-@router.get("/{category_id}", response_model=CategorySchema, status_code=status.HTTP_200_OK)
-async def read_category(category_id: int, db: AsyncSession = Depends(get_async_db)):
+@router.get("/{category_id}",
+            response_model=CategorySchema,
+            status_code=status.HTTP_200_OK)
+async def read_category(category_id: int,
+                        db: AsyncSession = Depends(get_async_db)):
     """
     Возвращает категорию по id
     :param category_id:
@@ -43,8 +51,12 @@ async def read_category(category_id: int, db: AsyncSession = Depends(get_async_d
     return category
 
 
-@router.post("/", response_model=CategorySchema, status_code=status.HTTP_201_CREATED)
-async def create_category(category: CategoryCreate, db: AsyncSession = Depends(get_async_db)):
+@router.post("/",
+             response_model=CategorySchema,
+             status_code=status.HTTP_201_CREATED)
+async def create_category(category: CategoryCreate,
+                          db: AsyncSession = Depends(get_async_db),
+                          current_user: UserModel = Depends(get_current_admin)):
     """
     Создание новой категории
     :param category:
@@ -67,8 +79,12 @@ async def create_category(category: CategoryCreate, db: AsyncSession = Depends(g
     return db_category
 
 
-@router.put("/{category_id}", response_model=CategorySchema)
-async def update_category(category_id: int, category: CategoryCreate, db: AsyncSession = Depends(get_async_db)):
+@router.put("/{category_id}",
+            response_model=CategorySchema)
+async def update_category(category_id: int,
+                          category: CategoryCreate,
+                          db: AsyncSession = Depends(get_async_db),
+                          current_user: UserModel = Depends(get_current_admin)):
     """
     Целиком заменяет категорию по ID
     :param category_id:
@@ -100,8 +116,11 @@ async def update_category(category_id: int, category: CategoryCreate, db: AsyncS
     return db_category
 
 
-@router.delete("/{category_id}", status_code=status.HTTP_200_OK)
-async def delete_category(category_id: int, db: AsyncSession = Depends(get_async_db)):
+@router.delete("/{category_id}",
+               status_code=status.HTTP_200_OK)
+async def delete_category(category_id: int,
+                          db: AsyncSession = Depends(get_async_db),
+                          current_user: UserModel = Depends(get_current_admin)):
     """
     Логически удаляет категорию по её ID, устанавливая is_active=False
     :param category_id:
