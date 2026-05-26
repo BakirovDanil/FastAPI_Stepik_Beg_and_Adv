@@ -2,11 +2,15 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.users import User as UserModel
 from app.models.categories import Category as CategoryModel
 from app.models.products import Product as ProductModel
 from app.schemas import Product as ProductSchema, ProductCreate
 
 from app.db_depends import get_async_db
+
+from app.auth import get_current_seller
+
 
 # создание роутера маршрута для товаров
 router = APIRouter(
@@ -81,9 +85,10 @@ async def read_products_by_category(category_id: int,
              response_model=ProductSchema,
              status_code=status.HTTP_201_CREATED)
 async def create_product(product: ProductCreate,
-                         db: AsyncSession = Depends(get_async_db)):
+                         db: AsyncSession = Depends(get_async_db),
+                         current_user: UserModel = Depends(get_current_seller)):
     """
-    Создание нового продукта
+    Создание нового продукта, привязанного  текущему продавцу (только для 'seller')
     :param product:
     :param db:
     :return:
@@ -95,7 +100,7 @@ async def create_product(product: ProductCreate,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found or inactive")
 
     # Создание нового продукта
-    product = ProductModel(**product.model_dump())
+    product = ProductModel(**product.model_dump(), seller_id = current_user.id)
     db.add(product)
     await db.commit()
     await db.refresh(product)
@@ -106,9 +111,10 @@ async def create_product(product: ProductCreate,
             response_model=ProductSchema)
 async def update_product(product_id: int,
                          product: ProductCreate,
-                         db: AsyncSession = Depends(get_async_db)):
+                         db: AsyncSession = Depends(get_async_db),
+                         current_user: UserModel = Depends(get_current_seller)):
     """
-    Целиком заменяет товар по ID
+    Целиком заменяет товар по ID, если он принадлежит текущему продавцу (только для 'seller').
     :param product_id:
     :return:
     """
@@ -117,6 +123,8 @@ async def update_product(product_id: int,
     db_product = result.first()
     if db_product is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found or inactive")
+    if db_product.seller_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only update your own products")
 
     stmt = select(CategoryModel).where(CategoryModel.id == product.category_id).where(CategoryModel.is_active == True)
     result = await db.scalars(stmt)
@@ -137,7 +145,8 @@ async def update_product(product_id: int,
 
 @router.delete("/{product_id}", response_model=ProductSchema)
 async def delete_product(product_id: int,
-                         db: AsyncSession = Depends(get_async_db)):
+                         db: AsyncSession = Depends(get_async_db),
+                         current_user: UserModel = Depends(get_current_seller)):
     """
     Логически удаляет продукт по ID, устанавливая is_active = False
     :param product_id:
@@ -149,6 +158,8 @@ async def delete_product(product_id: int,
     product = result.first()
     if product is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found or inactive")
+    if product.seller_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only delete your own products")
 
     await db.execute(update(ProductModel).where(ProductModel.id == product_id).values(is_active=False))
     await db.commit()
