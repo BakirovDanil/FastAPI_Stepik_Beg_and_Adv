@@ -70,7 +70,7 @@ class UserBase(BaseModel):
     Базовая модель пользователя.
     """
     email: EmailStr = Field(description="Email пользователя")
-    role: str = Field(default="buyer", pattern="^(buyer|seller)", description="Роль: 'buyer' или 'seller'")
+    role: str = Field(default="buyer", pattern="^(buyer|seller|admin)", description="Роль: 'buyer' или 'seller' или 'admin'")
 
 
 class UserCreate(UserBase):
