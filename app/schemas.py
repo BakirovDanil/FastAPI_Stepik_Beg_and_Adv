@@ -1,12 +1,14 @@
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from decimal import Decimal
+from datetime import datetime
 
 class CategoryCreate(BaseModel):
     """
     Модель для создания и обновления категорий.
     Используется в POST и PUT запросах
     """
-    name: str = Field(..., min_length=3,
+    name: str = Field(...,
+                      min_length=3,
                       max_length=50,
                       description="Название категории (3-50 символов)")
     parent_id: int | None = Field(default=None,
@@ -61,6 +63,8 @@ class Product(ProductCreate):
                     description="Уникальный идентификатор товара")
     is_active: bool = Field(...,
                             description="Активность товара")
+    rating: float = Field(...,
+                          description="Средняя оценка товара")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -94,3 +98,38 @@ class User(UserBase):
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+
+class ReviewBase(BaseModel):
+    """
+    Базовая модель отзыва.
+    """
+    product_id: int = Field(...,
+                            description="Уникальный идентификатор товара")
+    comment: str | None = Field(default=None,
+                                description="Содержание")
+    grade: int = Field(...,
+                       gt=1,
+                       lt=6,
+                       description="Оценка")
+
+
+class ReviewCreate(ReviewBase):
+    """
+    Модель для создания отзыва
+    """
+    pass
+
+
+class Review(ReviewBase):
+    """
+    Модель отзыва, используемая в GET-запросах.
+    """
+    id: int = Field(...,
+                    description="Уникальный идентификатор отзыва")
+    is_active: bool = Field(...,
+                            description="Статус отзыва")
+    user_id: int = Field(...,
+                         description="ID пользователя, который оставил отзыв")
+    comment_date: datetime = Field(...,
+                                   description="Дата отзыва")
