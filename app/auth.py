@@ -105,6 +105,17 @@ async def get_current_user(token: str = Depends(oauth2_scheme),
     return user
 
 
+async def get_current_buyer(current_user: UserModel = Depends(get_current_user)):
+    """
+    Проверка, что пользователь имеет роль 'buyer'
+    :param current_user:
+    :return:
+    """
+    if current_user.role != "buyer":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only buyer can perform this action")
+    return current_user
+
+
 async def get_current_seller(current_user: UserModel = Depends(get_current_user)):
     """
     Проверка, что пользователь имеет роль 'seller'
@@ -122,6 +133,6 @@ async def get_current_admin(admin_user: UserModel = Depends(get_current_user)):
     :param admin_user:
     :return:
     """
-    if admin_user != "admin":
+    if admin_user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admin can perform this action")
     return admin_user
