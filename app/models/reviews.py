@@ -7,6 +7,9 @@ from app.database import Base
 
 
 class Review(Base):
+    """
+    Модель для таблицы reviews
+    """
     __tablename__ = "reviews"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
