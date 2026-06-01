@@ -88,6 +88,15 @@ async def create_review(review: ReviewCreate,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Product not found")
 
+    stmt = select(ReviewModel).where(ReviewModel.user_id == current_user.id,
+                                     ReviewModel.is_active == True,
+                                     ReviewModel.product_id == review.product_id)
+    result = await db.scalars(stmt)
+    check_review = result.first()
+    if check_review:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Review is alive")
+
     db_review = ReviewModel(**review.model_dump(), user_id = current_user.id)
     db.add(db_review)
     await db.commit()
